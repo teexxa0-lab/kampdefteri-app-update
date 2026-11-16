@@ -1,1 +1,0 @@
-# kampdefteri-app-update
