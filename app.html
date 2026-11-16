@@ -133,7 +133,7 @@ button.big{padding:14px 40px;font-size:17px;border-radius:14px}
 <button data-t="more" onclick="go('more')"><span>☰</span>Daha</button>
 </nav>
 <script>
-const BUILD=5;
+const BUILD=7;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PROV={
@@ -175,8 +175,7 @@ async function ai(system,user,provider=defProv(),model){
     d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(keyErr(r.status,d));return d.content.map(c=>c.text||'').join('');
   }
   if(v.t==='gemini'){
-    r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:'POST',headers:gHead(k),body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:user}]}]})});
-    d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(keyErr(r.status,d));return gText(d);
+    return await gCall(k,m,system,[{text:user}]);
   }
   r=await fetch((S.bases[provider]||v.base)+'/chat/completions',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+k},body:JSON.stringify({model:m,messages:[{role:'system',content:system},{role:'user',content:user}]})});
   d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(keyErr(r.status,d));
@@ -185,6 +184,16 @@ async function ai(system,user,provider=defProv(),model){
 const cleanKey=k=>String(k||'').replace(/^[\s"'`]+|[\s"'`]+$/g,'').replace(/^(Bearer|Authorization:)\s+/i,'').replace(/\s+/g,'');
 const gHead=k=>({'content-type':'application/json','x-goog-api-key':k});
 const gText=d=>{const c=d&&d.candidates&&d.candidates[0];const t=c&&c.content&&c.content.parts?c.content.parts.filter(x=>!x.thought).map(x=>x.text||'').join(''):'';if(!t){const why=(d&&d.promptFeedback&&d.promptFeedback.blockReason)||(c&&c.finishReason)||'bos cevap';throw new Error('Gemini cevap vermedi ('+why+')')}return t};
+async function gCall(k,m,system,parts){const url=`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
+let r=await fetch(url,{method:'POST',headers:gHead(k),body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts}]})});
+let d=await r.json().catch(()=>({}));
+const msg=(d&&d.error&&d.error.message)||'';
+if(!r.ok&&/developer instruction|system instruction|systemInstruction/i.test(msg)){
+  const p2=parts.map((x,i)=>i===parts.length-1&&x.text!==undefined?{text:system+'\n\n'+x.text}:x);
+  r=await fetch(url,{method:'POST',headers:gHead(k),body:JSON.stringify({contents:[{role:'user',parts:p2}]})});
+  d=await r.json().catch(()=>({}));
+}
+if(!r.ok)throw new Error(keyErr(r.status,d));return gText(d)}
 const keyErr=(st,d)=>{const m=(d&&d.error&&(d.error.message||(typeof d.error==='string'?d.error:'')))||(d&&d.message)||'';if(st===401||st===403||/api key|api_key|invalid.*key|permission/i.test(m))return 'API anahtarı geçersiz ya da yetkisiz ('+st+'). Anahtarı Ayarlar sekmesinden yeniden gir. '+m;if(st===404)return 'Model bulunamadı ('+st+'). Ayarlar > Modelleri listele ile güncel modeli seç. '+m;if(st===429)return 'Kota ya da hız sınırı doldu (429). '+m;return m||('HTTP '+st)};
 const J=t=>JSON.parse(t.slice(t.search(/[\[{]/),Math.max(t.lastIndexOf(']'),t.lastIndexOf('}'))+1));
 const ctx=()=>{const p=S.profile||{};return ` Kullanıcı: ${p.name}. İlgi alanları: ${p.interests}. Spor hedefi: ${p.goal}.`};
@@ -371,8 +380,7 @@ if(ext==='doc'||ext==='xls'||ext==='ppt')throw new Error('Eski Office biçimi ('
 return{text:await f.text(),name:n}}
 async function aiFile(system,user,f){const p=S.keys.gemini?'gemini':S.keys.anthropic?'anthropic':null;if(!p)throw new Error('PDF ve resim okumak için Gemini ya da Claude anahtarı gerekli.');
 const k=cleanKey(S.keys[p]),m=(S.models[p]||'').split(',')[0].trim()||PROV[p].model;let r,d;
-if(p==='gemini'){r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:'POST',headers:gHead(k),body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{inlineData:{mimeType:f.mime,data:f.b64}},{text:user}]}]})});
-d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(keyErr(r.status,d));return gText(d)}
+if(p==='gemini'){return await gCall(k,m,system,[{inlineData:{mimeType:f.mime,data:f.b64}},{text:user}])}
 r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:m,max_tokens:4000,system,messages:[{role:'user',content:[{type:f.mime==='application/pdf'?'document':'image',source:{type:'base64',media_type:f.mime,data:f.b64}},{type:'text',text:user}]}]})});
 d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(keyErr(r.status,d));return d.content.map(c=>c.text||'').join('')}
 function icsEvents(txt){const out=[];txt.replace(/\r?\n[ \t]/g,'').split('BEGIN:VEVENT').slice(1).forEach(b=>{const g=k=>{const m=b.match(new RegExp('^'+k+'[^:\\n]*:(.*)$','m'));return m?m[1].trim():''};
@@ -655,9 +663,9 @@ one('p50','Yarı Yolda','50 başarım aç','medal',2,()=>Object.keys(S.badges).l
 one('p100','Platin Kupa','100 başarım aç','trophy',3,()=>Object.keys(S.badges).length>=100);
 one('pall','Hepsini Topladım','Bütün başarımları aç','crown',3,()=>BADGES.every(b=>b.id==='pall'||S.badges[b.id]),true);
 const badgeG=()=>BADGES.filter(b=>S.badges[b.id]).reduce((a,b)=>a+b.g,0);
-const LEGACY={t10:'task10',e10:'event10',n5:'note5',g5:'game5',s10k:'step10000',sl7:'sleep1',c1:'council1',m20:'chat20',mem10:'mem10',f1:'file1',st7:'streak7',w1:'work1',w50:'work50'};
+const LEGACY={t10:'task10',e10:'event10',n5:'note5',g5:'game5',s10k:'step10000',sl7:'sleep1',c1:'council1',m20:'chat20',f1:'file1',st7:'streak7',w1:'work1',w50:'work50'};
 var _cb;function checkBadgesSoon(){clearTimeout(_cb);_cb=setTimeout(checkBadges,400)}
-function checkBadges(){if(!S.profile)return;for(const o in LEGACY){if(S.badges[o]){if(!S.badges[LEGACY[o]])S.badges[LEGACY[o]]=S.badges[o];delete S.badges[o]}}
+function checkBadges(){if(!S.profile)return;for(const o in LEGACY){if(LEGACY[o]===o)continue;if(S.badges[o]){if(!S.badges[LEGACY[o]])S.badges[LEGACY[o]]=S.badges[o];delete S.badges[o]}}
 let n=0,sh=[];BADGES.forEach(b=>{if(!S.badges[b.id]&&b.ok()){S.badges[b.id]=today();n++;if(sh.length<3)sh.push(b)}});
 sh.forEach((b,i)=>setTimeout(()=>achBadge(b),i*4000));if(n>3)setTimeout(()=>ach((n-3)+' başarım daha açıldı'),3*4000);
 if(n){try{localStorage.setItem('kd',JSON.stringify(S))}catch(e){}if(tab==='home'||tab==='ach')render()}}
@@ -715,10 +723,11 @@ ${s.games.length?`<p class="dim" style="margin:8px 4px">Oynadıkların: ${esc(s.
 async function sumAI(){const {stepsSeries,...rest}=stats(sumP);busy('Özet hazırlanıyor...');try{S.sums[sumP+'|'+today()]=await ai('Sen samimi bir koçsun. Kullanıcının dönem verilerini Türkçe, arkadaşça özetle: neleri iyi yaptı, neler eksik kaldı, bir somut öneri ver. En fazla 140 kelime. Veri uydurma, veri yoksa söyle.'+ctx(),JSON.stringify(rest));save();render()}catch(e){toast(e.message)}busy()}
 
 /* ---------- Uygulama güncellemesi ---------- */
-async function checkUpdate(manual){const u=(S.updUrl||'').trim();
+function fixUpd(u){u=String(u||'').trim();let m=u.match(/^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/(?:blob|raw)\/(.+)$/);if(m)u='https://raw.githubusercontent.com/'+m[1]+'/'+m[2]+'/'+m[3];return u.split('?')[0]}
+async function checkUpdate(manual){const u=fixUpd(S.updUrl);
 if(!u){if(manual)toast('Önce güncelleme adresini gir');return}
 if(!/^https:\/\//.test(u)){if(manual)toast('Adres https ile başlamalı');return}
-try{const r=await fetch(u+(u.includes('?')?'&':'?')+'t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('Sunucu cevabı: '+r.status);
+try{const r=await fetch(u+(u.includes('?')?'&':'?')+'t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error(r.status===404?'404: dosya bulunamadı. Adres şu biçimde olmalı: https://raw.githubusercontent.com/KULLANICI/DEPO/main/www/app.html (depo gizliyse çalışmaz, Public olmalı)':'Sunucu cevabı: '+r.status);
 const h=await r.text(),m=h.match(/const BUILD=(\d+);/);if(!m||!/JTAG|Kamp Defteri/.test(h))throw new Error('Geçerli bir güncelleme dosyası değil');
 const v=+m[1];if(v<=+(localStorage.getItem('kd_bad')||0)){if(manual)toast('Bu sürüm açılışta hata verdi, atlandı. Daha yeni bir sürüm bekleniyor.');return}let cur=BUILD;try{const o=JSON.parse(localStorage.getItem('kd_ota')||'null');if(o&&o.v>cur)cur=o.v}catch(e){}
 if(v>cur){localStorage.setItem('kd_ota',JSON.stringify({v,html:h}));
