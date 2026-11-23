@@ -116,6 +116,14 @@ button.big{padding:14px 40px;font-size:17px;border-radius:14px}
 .obin{margin:6px 0 10px;padding:14px;font-size:16px}.obnav{display:flex;gap:10px;margin-top:22px;padding-bottom:10px}.obnav button{flex:1;padding:14px}
 .aic.on.r0{background:linear-gradient(135deg,#2d9b2d,#0b3a0b)}.aic.on.r1{background:linear-gradient(135deg,#2f7be0,#0a1a45)}.aic.on.r2{background:linear-gradient(135deg,#a45be8,#2a0a45)}.aic.on.r3{background:linear-gradient(135deg,#f6c243,#7a4a08);box-shadow:0 0 18px #f6c24366,inset 0 0 0 2px #ffffff40}
 .ab.on.r1{box-shadow:inset 0 0 0 1px #2f7be0}.ab.on.r2{box-shadow:inset 0 0 0 1px #a45be8}.ab.on.r3{box-shadow:inset 0 0 0 1px #f6c243}
+
+.rec .rin{flex:1;min-width:0}
+.rec.hasimg{display:flex;gap:14px;align-items:stretch;min-height:190px}
+.rec .rcv{width:104px;flex:none;border-radius:10px;object-fit:cover;box-shadow:0 6px 14px #0009;align-self:stretch;background:#0005}
+.rec.hasimg .rin p:not(.rg){display:none}
+.rsc{width:100%;max-height:320px;object-fit:contain;border-radius:12px;margin:4px 0 10px;background:#0004}
+.tm{display:flex;gap:8px;align-items:center}.tm input{flex:1}
+.hint{font-size:12px;color:var(--dim);margin:6px 0 0}
 .rec{cursor:pointer}.rec .rg{font-size:12px;color:#ffffffbb;margin:0 0 4px}.rec .rt{display:block;margin-top:8px;color:#ffffff99;font-size:11px}
 .nw{cursor:pointer}.nw b{display:block;margin-top:2px}.nw img{width:100%;max-height:150px;object-fit:cover;border-radius:10px;margin-bottom:8px}.nw+.nw{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}.card.nw+.card.nw{border-top:0;margin-top:10px;padding-top:14px}
 </style>
@@ -133,7 +141,7 @@ button.big{padding:14px 40px;font-size:17px;border-radius:14px}
 <button data-t="more" onclick="go('more')"><span>☰</span>Daha</button>
 </nav>
 <script>
-const BUILD=7;
+const BUILD=8;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PROV={
@@ -149,9 +157,9 @@ mistral:{n:'Mistral',t:'oai',base:'https://api.mistral.ai/v1',model:'mistral-sma
 sambanova:{n:'SambaNova',t:'oai',base:'https://api.sambanova.ai/v1',model:'Meta-Llama-3.3-70B-Instruct'},
 github:{n:'GitHub Models',t:'oai',base:'https://models.github.ai/inference',model:'openai/gpt-4.1-mini'},
 hf:{n:'Hugging Face',t:'oai',base:'https://router.huggingface.co/v1',model:'meta-llama/Llama-3.3-70B-Instruct'}};
-const def={profile:null,files:[],badges:{},cnt:{},gfact:null,cOff:{},bases:{},tasks:[],notifs:[],chat:[],memory:[],theme:'xbox',loc:{name:'Malatya',lat:38.3552,lon:38.3095},wx:null,sums:{},notes:[],games:[],quote:null,photo:'',events:[],steps:{},sleep:{},weight:{},done:{},recs:{},keys:{anthropic:'',openai:'',gemini:''},models:{anthropic:'claude-sonnet-5-5',openai:'gpt-6.1-terra',gemini:'gemini-3.8-flash'},provider:'gemini',remind:15,council:{}};
+const def={profile:null,files:[],badges:{},cnt:{},gfact:null,cOff:{},bases:{},tasks:[],notifs:[],chat:[],memory:[],theme:'xbox',loc:{name:'Malatya',lat:38.3552,lon:38.3095},wx:null,sums:{},notes:[],games:[],quote:null,photo:'',events:[],steps:{},sleep:{},weight:{},done:{},recs:{},keys:{anthropic:'',openai:'',gemini:''},models:{anthropic:'claude-sonnet-5-5',openai:'gpt-6.1-terra',gemini:'gemini-3.8-flash'},provider:'gemini',remind:15,council:{},plan:null,nwinOn:false,nwin:[{a:'09:00',b:'22:00'}],rems:[],snd:{ach:'classic',act:'off',rem:'bell',nudge:'classic',chat:'off',gen:'classic'},sndVol:.6};
 let S;try{S={...def,...JSON.parse(localStorage.getItem('kd')||'{}')}}catch(e){S={...def}}
-S.keys={...def.keys,...S.keys};S.models={...def.models,...S.models};for(const p in PROV){S.keys[p]=S.keys[p]||'';S.models[p]=S.models[p]||PROV[p].model}
+S.snd={...def.snd,...(S.snd||{})};S.keys={...def.keys,...S.keys};S.models={...def.models,...S.models};for(const p in PROV){S.keys[p]=S.keys[p]||'';S.models[p]=S.models[p]||PROV[p].model}
 const MODEL_UP={gemini:{'gemini-2.0-flash':'gemini-3.8-flash','gemini-2.0-flash-001':'gemini-3.8-flash','gemini-2.0-flash-lite':'gemini-3.8-flash','gemini-2.5-flash':'gemini-3.8-flash','gemini-2.5-flash-lite':'gemini-3.8-flash','gemini-2.5-pro':'gemini-3.8-flash','gemini-3-flash-preview':'gemini-3.8-flash','gemini-3.5-flash':'gemini-3.8-flash','gemini-3.6-flash':'gemini-3.8-flash','gemini-3.7-flash':'gemini-3.8-flash'},openai:{'gpt-4o-mini':'gpt-6.1-terra','gpt-4o':'gpt-6.1-terra','gpt-4.1-mini':'gpt-6.1-terra','gpt-4.1':'gpt-6.1-terra','gpt-5-mini':'gpt-6.1-terra','gpt-5.4-mini':'gpt-6.1-terra','gpt-5.6-terra':'gpt-6.1-terra'},kimi:{'kimi-k2-0905-preview':'kimi-k3','kimi-k2-0711-preview':'kimi-k3','kimi-k2-turbo-preview':'kimi-k3','kimi-k2-thinking':'kimi-k3','kimi-k2-thinking-turbo':'kimi-k3','kimi-k2.5':'kimi-k3','kimi-latest':'kimi-k3'},groq:{'qwen/qwen3-32b':'openai/gpt-oss-20b'}};
 for(const p in MODEL_UP){if(S.models[p])S.models[p]=S.models[p].split(',').map(x=>{x=x.trim();return MODEL_UP[p][x]||x}).filter((x,i,a)=>x&&a.indexOf(x)===i).join(', ')}
 if(S.provider==='anthropic'&&!S.keys.anthropic)S.provider='gemini';
@@ -160,7 +168,7 @@ const ymd=d=>d.toLocaleDateString('sv');const today=()=>ymd(new Date());
 const hasKey=()=>!!S.keys[defProv()];
 let tab='home',calM=new Date(),sel=today(),editing=false,CO=null;
 function toast(m,h){const t=$('#toast');if(h)t.innerHTML=h;else t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',3800)}
-function ach(msg){toast('',`<div class="ach"><div class="trophy"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#9bf00b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></div><div><b>Başarım açıldı</b><br><span class="dim">${esc(msg)}</span></div></div>`);navigator.vibrate&&navigator.vibrate(80)}
+function ach(msg){toast('',`<div class="ach"><div class="trophy"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#9bf00b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></div><div><b>Başarım açıldı</b><br><span class="dim">${esc(msg)}</span></div></div>`);navigator.vibrate&&navigator.vibrate(80);beep('act')}
 function busy(m){const b=$('#busy');b.textContent=m||'';b.style.display=m?'block':'none'}
 function go(t){tab=t;render();scrollTo(0,0)}
 
@@ -256,11 +264,13 @@ editing=false;ob=null;save();render();if(hasKey()&&!(S.recs[today()]&&S.recs[tod
 
 /* ---------- Bugün ---------- */
 const PLAN={0:['Dinlenme günü','20 dk yürüyüş','Esneme 10 dk'],1:['Göğüs: bench press 4x8','Incline dumbbell 3x10','Dips 3x12','Triceps pushdown 3x12'],2:['Sırt: lat pulldown 4x10','Barbell row 4x8','Face pull 3x15','Biceps curl 3x12'],3:['Tempolu koşu 30 dk','Plank 3x45 sn','Mekik 3x20'],4:['Bacak: squat 4x8','Romanian deadlift 3x10','Lunge 3x12','Baldır 4x15'],5:['Omuz: overhead press 4x8','Lateral raise 4x15','Shrug 3x12','Kol süperseti'],6:['Hafif kardiyo 40 dk','Mobilite 15 dk']};
+const WD=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+const planOf=d=>{const p=S.plan&&S.plan[d];return Array.isArray(p)?p:(PLAN[d]||[])};
 const cmp=(a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''));
 function home(){const d=new Date(),t=today(),h=d.getHours(),hm=d.toTimeString().slice(0,5);
 const g=h<5?'İyi geceler':h<12?'Günaydın':h<18?'Tünaydın':h<22?'İyi akşamlar':'İyi geceler';
 const nx=S.events.filter(e=>(e.date+' '+(e.time||'00:00'))>=(t+' '+hm)).sort(cmp)[0];
-const r=S.recs[t]||{};const plan=PLAN[d.getDay()];
+const r=S.recs[t]||{};const plan=planOf(d.getDay());
 return `<section class="hero"><div class="me"><div class="av" onclick="$('#pf').click()" title="Fotoğrafı değiştir">${S.photo?`<img src="${S.photo}" alt="">`:esc(S.profile.name[0]||'?').toUpperCase()}</div><input id="pf" type="file" accept="image/*" hidden onchange="setPhoto(this)"><div><b>${esc(S.profile.name)}</b><p class="dim" style="margin:0">${d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'})}</p></div><button class="bell" onclick="go('notif')">🔔${S.notifs.some(n=>!n.read)?`<i>${S.notifs.filter(n=>!n.read).length}</i>`:''}</button></div>
 <div class="chips"><div class="gs" onclick="bump('gtap')"><b>G</b>${G()}</div>${wxChip()}</div>
 <h1>${g}, ${esc(S.profile.name)}.</h1>
@@ -272,12 +282,20 @@ ${taskCard()}
 <div class="stat"><label>Adım</label><input type="number" inputmode="numeric" value="${S.steps[t]??''}" onchange="stat('steps',this.value)"></div>
 <div class="stat"><label>Uyku (saat)</label><input type="number" step="0.1" inputmode="decimal" value="${S.sleep[t]??''}" onchange="stat('sleep',this.value)"></div>
 <div class="stat"><label>Kilo (kg)</label><input type="number" step="0.1" inputmode="decimal" value="${S.weight[t]??''}" onchange="stat('weight',this.value)"></div></div>
-<h2>Bugünün antrenmanı</h2><div class="card">${plan.map((x,i)=>{const k=t+'|'+i;return `<label class="chk ${S.done[k]?'d':''}" style="margin:0;color:var(--bone)"><input type="checkbox" ${S.done[k]?'checked':''} onchange="tick2('${k}',this.checked)"><span>${esc(x)}</span></label>`}).join('')}</div>
+<div class="nav2"><h2>Bugünün antrenmanı</h2><button onclick="go('plan')">Düzenle</button></div><div class="card">${!plan.length?'<p class="dim" style="margin:0">Bugün için hareket yok. Düzenle düğmesinden ekleyebilirsin.</p>':''}${plan.map((x,i)=>{const k=t+'|'+i;return `<label class="chk ${S.done[k]?'d':''}" style="margin:0;color:var(--bone)"><input type="checkbox" ${S.done[k]?'checked':''} onchange="tick2('${k}',this.checked)"><span>${esc(x)}</span></label>`}).join('')}</div>
 <div class="nav2"><h2>Günün önerileri</h2></div>
 <div class="tiles">${rc('game','Oyun',r.game)}${rc('film','Film',r.film)}${rc('series','Dizi',r.series)}${rc('book','Kitap',r.book)}</div>
 <div class="row"><button class="moss" onclick="getRecs()">Önerileri yenile</button></div>${gamesSec()}${newsSec()}`}
-const rc=(k,l,r)=>`<div class="rec ${k}" onclick="recSheet('${k}')"><b>${l}</b>${r?`<h3>${esc(r.title)}</h3>${r.genre||r.year?`<p class="rg">${esc([r.genre,r.year].filter(Boolean).join(' · '))}</p>`:''}<p>${esc(r.why)}</p><small class="rt">Detay için dokun</small>`:'<p>Henüz öneri yok. Bir yapay zeka anahtarı girip yenile.</p>'}</div>`;
+const rc=(k,l,r)=>`<div class="rec ${k}${r&&r.img?' hasimg':''}" onclick="recSheet('${k}')">${r&&r.img?`<img class="rcv" src="${esc(r.img)}" alt="" onerror="this.parentNode.classList.remove('hasimg');this.remove()">`:''}<div class="rin"><b>${l}</b>${r?`<h3>${esc(r.title)}</h3>${r.genre||r.year?`<p class="rg">${esc([r.genre,r.year].filter(Boolean).join(' · '))}</p>`:''}<p>${esc(r.why)}</p><small class="rt">Detay için dokun</small>`:'<p>Henüz öneri yok. Bir yapay zeka anahtarı girip yenile.</p>'}</div></div>`;
 
+
+function setPlan(d,v){S.plan=S.plan||{};S.plan[d]=v.split('\n').map(x=>x.trim()).filter(Boolean);save();toast(WD[d]+' programı kaydedildi')}
+function resetPlan(){if(confirm('Tüm günler varsayılan programa dönsün mü?')){S.plan=null;save();render()}}
+function copyPlan(d){const to=prompt('Hangi güne kopyalansın? (1=Pazartesi ... 6=Cumartesi, 0=Pazar)');if(to===null||to.trim()==='')return;const t=+to;if(!(t>=0&&t<=6))return toast('0 ile 6 arası bir sayı gir');S.plan=S.plan||{};S.plan[t]=planOf(d).slice();save();render()}
+function planPage(){const order=[1,2,3,4,5,6,0],td=new Date().getDay();
+return `<section class="hero"><h1>Antrenman programı</h1><p class="dim" style="position:relative">Her satıra bir hareket yaz, örneğin: Bench press 4x8. Boş bırakırsan o gün dinlenme günü olur. Ana sayfada bugünün programı görünür.</p></section>
+${order.map(d=>`<div class="card"><div class="nav2"><b>${WD[d]}${d===td?' · bugün':''}</b><button onclick="copyPlan(${d})">Kopyala</button></div><textarea rows="${Math.max(3,planOf(d).length+1)}" placeholder="Hareketleri satır satır yaz" onchange="setPlan(${d},this.value)" style="margin-top:8px">${esc(planOf(d).join('\n'))}</textarea></div>`).join('')}
+<div class="row"><button onclick="resetPlan()">Varsayılan programa dön</button></div>`}
 function stat(k,v){if(v==='')delete S[k][today()];else S[k][today()]=+v;save()}
 const G=()=>Object.values(S.done).filter(Boolean).length*10+S.events.length*5+Object.keys(S.steps).length*5+S.notes.length*3+S.games.length*2+S.tasks.filter(x=>x.done).length*5+badgeG();
 function tick2(k,v){S.done[k]=v;save();render();if(v)ach('Antrenman maddesi tamamlandı · +10G')}
@@ -287,11 +305,23 @@ const zevk=S.memory.filter(m=>m.c==='zevk').slice(-15).map(m=>m.t).join('; ')||'
 const t=await ai('Kişisel öneri asistanısın. Sadece JSON döndür, başka metin yazma.',`Kullanıcı ${p.name}. İlgi: ${p.interests}. Dizi ve film türleri: ${p.film}. Oyun: ${p.game}. Kitap: ${p.book}. Tarih: ${today()}.
 Kullanıcının son zamanlardaki zevkleri ve ruh hâli (sohbetten öğrenilenler, bunlara ÖNCELİK VER): ${zevk}. Son mesajları: ${sohbet}.
 Bugün için birer oyun, film, dizi, kitap öner. Daha önce önerdiklerin tekrar etmesin: ${prev}.
-Format: {"game":{"title":"","genre":"tür","year":"yıl","why":"neden önerdin, 1 cümle","summary":"spoiler vermeden hikâye özeti, 2-3 cümle"},"film":{...},"series":{...},"book":{"title":"","genre":"","year":"","author":"","why":"","summary":""}} Hepsi Türkçe.`);
-S.recs[today()]=J(t);S.recAt=Date.now();save();render()}catch(e){toast(e.message)}finally{busy()}}
+Format: {"game":{"title":"","orig":"orijinal adı (çevirisiz, Latin harfleriyle)","genre":"tür","year":"yıl","why":"neden önerdin, 1 cümle","summary":"spoiler vermeden hikâye özeti, 2-3 cümle"},"film":{...},"series":{...},"book":{"title":"","genre":"","year":"","author":"","why":"","summary":""}} Hepsi Türkçe.`);
+S.recs[today()]=J(t);S.recAt=Date.now();save();render();ensureCovers()}catch(e){toast(e.message)}finally{busy()}}
+
+const _cvTried={};let _cvBusy=0;
+async function fj(u){const r=await Promise.race([fetch(u),new Promise((_,j)=>setTimeout(()=>j(new Error('zaman aşımı')),9000))]);if(!r.ok)throw new Error(r.status);return r.json()}
+async function findCover(k,r){const q=(r.orig||r.title||'').trim();if(!q)return '';let got=false;
+try{if(k==='series'){const d=await fj('https://api.tvmaze.com/search/shows?q='+encodeURIComponent(q));got=true;const im=d[0]&&d[0].show&&d[0].show.image;if(im&&(im.original||im.medium))return (im.original||im.medium).replace('http://','https://')}
+else if(k==='film'){const d=await fj('https://itunes.apple.com/search?media=movie&entity=movie&limit=1&term='+encodeURIComponent(q));got=true;const a=d.results&&d.results[0]&&d.results[0].artworkUrl100;if(a)return a.replace('100x100bb','300x450bb')}
+else if(k==='book'){const d=await fj('https://openlibrary.org/search.json?limit=1&fields=cover_i&q='+encodeURIComponent(q));got=true;const c=d.docs&&d.docs[0]&&d.docs[0].cover_i;if(c)return 'https://covers.openlibrary.org/b/id/'+c+'-L.jpg'}}catch(e){}
+try{const suf={game:' video game',film:' film',series:' television series',book:' novel'}[k]||'';const d=await fj('https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=500&format=json&origin=*&gsrsearch='+encodeURIComponent(q+suf));got=true;const pg=d.query&&Object.values(d.query.pages)[0];if(pg&&pg.thumbnail&&pg.thumbnail.source)return pg.thumbnail.source}catch(e){}
+return got?'':undefined}
+async function ensureCovers(){const t=today(),rs=S.recs&&S.recs[t];if(!rs||_cvBusy)return;const ks=Object.keys(rs).filter(k=>rs[k]&&rs[k].title&&rs[k].img===undefined&&!_cvTried[t+k+rs[k].title]);if(!ks.length)return;_cvBusy=1;let ch=0;
+try{for(const k of ks){_cvTried[t+k+rs[k].title]=1;const u=await findCover(k,rs[k]);if(u!==undefined){rs[k].img=u;if(u)ch=1}}}finally{_cvBusy=0}
+if(ch){save();if(tab==='home')render()}else{try{localStorage.setItem('kd',JSON.stringify(S))}catch(e){}}}
 const REC_L={game:'Oyun',film:'Film',series:'Dizi',book:'Kitap'};
 function recSheet(k){const r=(S.recs[today()]||{})[k];if(!r)return toast('Önce önerileri yenile');bump('recOpen');
-openM(`<h2 style="margin:0 0 6px">${esc(r.title)}</h2><div class="ocs" style="margin:6px 0 10px"><span class="oc on">${REC_L[k]}</span>${r.genre?`<span class="oc">${esc(r.genre)}</span>`:''}${r.year?`<span class="oc">${esc(r.year)}</span>`:''}${r.author?`<span class="oc">${esc(r.author)}</span>`:''}</div>
+openM(`${r.img?`<img class="rsc" src="${esc(r.img)}" alt="" onerror="this.remove()">`:''}<h2 style="margin:0 0 6px">${esc(r.title)}</h2><div class="ocs" style="margin:6px 0 10px"><span class="oc on">${REC_L[k]}</span>${r.genre?`<span class="oc">${esc(r.genre)}</span>`:''}${r.year?`<span class="oc">${esc(r.year)}</span>`:''}${r.author?`<span class="oc">${esc(r.author)}</span>`:''}</div>
 <div class="card"><b class="dim" style="font-size:12px">${k==='book'?'Konusu':'Hikâye özeti'}</b><p style="margin-top:6px">${r.summary?esc(r.summary):'Henüz özet yok.'}</p></div>
 <div class="card"><b class="dim" style="font-size:12px">Neden önerdim?</b><p style="margin-top:6px">${esc(r.why||'')}</p></div>
 <div class="row">${r.summary?'':`<button class="moss" onclick="getRecDetail('${k}')">Özeti getir</button>`}${k==='game'?`<button class="pri" onclick="recToGames()">Oyunlarıma ekle</button>`:`<button class="pri" onclick="recToNote('${k}')">Listeme not al</button>`}</div><div class="row"><button onclick="closeM()">Kapat</button></div>`)}
@@ -453,21 +483,60 @@ function delNote(id){S.notes=S.notes.filter(n=>n.id!==id);save();render()}
 
 /* ---------- Bildirim ---------- */
 const LN=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
+const SND={off:{n:'Sessiz',t:null},classic:{n:'Klasik bip',t:[[880,.12]]},dbl:{n:'Çift bip',t:[[880,.1],[0,.06],[880,.1]]},bell:{n:'Zil',t:[[1318,.22],[1760,.45]]},arp:{n:'Oyun arpej',t:[[523,.09],[659,.09],[784,.09],[1047,.22]]},coin:{n:'Coin',t:[[988,.07],[1319,.32]]},low:{n:'Yumuşak',t:[[392,.2],[330,.35]]},fan:{n:'Fanfar',t:[[523,.1],[0,.03],[523,.1],[0,.03],[523,.1],[659,.35]]}};
+const SK=[['ach','Başarım açıldı'],['act','İşlem onayı (görev eklendi, kaydedildi...)'],['rem','Etkinlik ve görev hatırlatması'],['nudge','Düzenli hatırlatmalar'],['chat','Sohbet cevabı geldi'],['gen','Diğer bildirimler']];
+let _ac;function playSnd(id,vol){try{const s=SND[id];if(!s||!s.t)return;const a=_ac||(_ac=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();const v=Math.max(.02,(vol??S.sndVol??.6)*.4);let t=a.currentTime+.02;s.t.forEach(([f,d])=>{if(f){const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.start(t);o.stop(t+d+.03)}t+=d})}catch(e){}}
+function beep(k){playSnd((S.snd||{})[k||'gen'])}
+const hm2m=h=>{const a=String(h||'0:0').split(':');return (+a[0]||0)*60+(+a[1]||0)};
+function winShift(ts){if(!S.nwinOn)return ts;const w=(S.nwin||[]).map(x=>[hm2m(x.a),hm2m(x.b)]).filter(x=>x[0]!==x[1]).map(x=>[x[0],x[1]<x[0]?x[1]+1440:x[1]]);if(!w.length)return ts;let best=Infinity;
+for(let off=-1;off<3;off++){const b0=new Date(ts);b0.setHours(0,0,0,0);b0.setDate(b0.getDate()+off);for(const x of w){const st=b0.getTime()+x[0]*6e4,en=b0.getTime()+x[1]*6e4;if(ts>=st&&ts<=en)return ts;if(st>ts&&st<best)best=st}}
+return best===Infinity?ts:best}
+function remSlots(r){const every=Math.max(15,+r.every||120);let a=hm2m(r.a),b=hm2m(r.b);if(b<=a)b+=1440;const out=[];for(let m=a;m<=b;m+=every)out.push(m);return out}
+async function ensureChannels(ln){if(window._chOk||!ln.createChannel)return;try{for(const id in SND){if(id==='off')await ln.createChannel({id:'kd_off',name:'Sessiz',description:'Sessiz bildirimler',importance:2,vibration:false});else await ln.createChannel({id:'kd_'+id,name:'Ses: '+SND[id].n,description:'Bildirim sesi: '+SND[id].n,importance:4,sound:'kd_'+id+'.wav',vibration:true})}window._chOk=1}catch(e){}}
+const chOf=k=>'kd_'+((S.snd||{})[k]||'classic');
+const sndFile=k=>{const v=(S.snd||{})[k];return v&&v!=='off'?'kd_'+v+'.wav':undefined};
 var _sn;function syncNative(){clearTimeout(_sn);_sn=setTimeout(async()=>{const kn=KN();if(kn&&S.profile){try{kn.setWidget(widgetData())}catch(e){}}const ln=LN();if(!ln)return;
 try{let p=await ln.checkPermissions();if(p.display!=='granted'){p=await ln.requestPermissions();if(p.display!=='granted')return}
+await ensureChannels(ln);
 const pend=await ln.getPending();if(pend.notifications.length)await ln.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
 const now=Date.now(),list=[];[...S.events.map(e=>[e,'Etkinlik']),...S.tasks.filter(x=>!x.done&&x.date).map(e=>[e,'Görev'])].forEach(([e,k],i)=>{
-const at=new Date(e.date+'T'+(e.time||'09:00')+':00').getTime()-S.remind*6e4;if(at>now)list.push({id:100+i,title:k+': '+e.title,body:e.time?e.time+' saatinde':'bugün',schedule:{at:new Date(at),allowWhileIdle:true}})});
-if(list.length)await ln.schedule({notifications:list.slice(0,60)})}catch(e){}},800)}
-function beep(){try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.08;o.start();o.stop(a.currentTime+.25)}catch(e){}}
-function ping(t,b){S.notifs.unshift({id:uid(),title:t,body:b,at:Date.now(),read:0});S.notifs=S.notifs.slice(0,100);save();toast('🔔 '+t+' · '+b);navigator.vibrate&&navigator.vibrate([200,100,200]);beep();
+let at=new Date(e.date+'T'+(e.time||'09:00')+':00').getTime()-S.remind*6e4;if(at<=now)return;at=winShift(at);list.push({id:100+i,title:k+': '+e.title,body:e.time?e.time+' saatinde':'bugün',schedule:{at:new Date(at),allowWhileIdle:true},channelId:chOf('rem'),sound:sndFile('rem')})});
+list.sort((a,b)=>a.schedule.at-b.schedule.at);list.splice(60);
+let rid=1000;const rl=[];(S.rems||[]).filter(r=>r.on!==false).forEach(r=>{const days=r.days||[0,1,2,3,4,5,6];if(!days.length)return;const title=(r.text||'').trim()||'Hatırlatma';
+remSlots(r).forEach(m=>{const hh=Math.floor((m%1440)/60),mm=m%60,dayAdd=Math.floor(m/1440);
+const mk=on=>({id:rid++,title,body:'Kamp Defteri hatırlatması',schedule:{on,allowWhileIdle:true},channelId:chOf('nudge'),sound:sndFile('nudge')});
+if(days.length===7&&!dayAdd)rl.push(mk({hour:hh,minute:mm}));else days.forEach(d=>rl.push(mk({weekday:((d+dayAdd)%7)+1,hour:hh,minute:mm})))})});
+rl.splice(150);
+const all=[...list,...rl];if(all.length)await ln.schedule({notifications:all})}catch(e){}},800)}
+function ping(t,b,kind){S.notifs.unshift({id:uid(),title:t,body:b,at:Date.now(),read:0});S.notifs=S.notifs.slice(0,100);save();toast('🔔 '+t+' · '+b);navigator.vibrate&&navigator.vibrate([200,100,200]);beep(kind||'gen');
 try{if(Notification.permission==='granted')new Notification(t,{body:b})}catch(e){}if(tab==='notif')render()}
-function tickEv(){const now=Date.now();[...S.events.map(e=>[e,'Etkinlik']),...S.tasks.filter(x=>!x.done&&x.date).map(e=>[e,'Görev'])].forEach(([e,k])=>{if(e.notified)return;
+function tickEv(){const now=Date.now();if(S.nwinOn&&winShift(now)!==now)return;[...S.events.map(e=>[e,'Etkinlik']),...S.tasks.filter(x=>!x.done&&x.date).map(e=>[e,'Görev'])].forEach(([e,k])=>{if(e.notified)return;
 const at=new Date(e.date+'T'+(e.time||'09:00')+':00').getTime(),diff=(at-now)/6e4;
-if(diff<=S.remind&&diff>-60){e.notified=1;save();ping(k+': '+e.title,e.time?(diff>1?Math.round(diff)+' dk sonra · ':'şimdi · ')+e.time:'bugün')}})}
+if(diff<=S.remind&&diff>-60){e.notified=1;save();ping(k+': '+e.title,e.time?(diff>1?Math.round(diff)+' dk sonra · ':'şimdi · ')+e.time:'bugün','rem')}})}
 function askPerm(){if(LN()){LN().requestPermissions().then(r=>toast('Bildirim izni: '+r.display));return}if(!('Notification' in window))return toast('Bu cihazda bildirim desteği yok');Notification.requestPermission().then(p=>toast('Bildirim izni: '+p))}
+
+function togRemDay(i,d){const r=S.rems[i];r.days=r.days||[0,1,2,3,4,5,6];const x=r.days.indexOf(d);if(x>=0)r.days.splice(x,1);else r.days.push(d);save();render()}
+function addRem(){S.rems=S.rems||[];S.rems.push({id:uid(),text:'Su iç',a:'10:00',b:'20:00',every:120,days:[0,1,2,3,4,5,6],on:true});save();render()}
+function nsetPage(){const rl=(S.rems||[]);
+return `<section class="hero"><h1>Bildirim ayarları</h1><p class="dim" style="position:relative">Bildirim saatlerini, düzenli hatırlatmaları ve sesleri buradan ayarla.</p></section>
+<h2>Saat aralıkları</h2><div class="card"><label class="chk" style="margin:0"><input type="checkbox" ${S.nwinOn?'checked':''} onchange="S.nwinOn=this.checked;save();render()"><span>Etkinlik ve görev bildirimlerini yalnızca bu saatlerde gönder</span></label>
+${(S.nwin||[]).map((w,i)=>`<div class="tm" style="margin-top:10px"><input type="time" value="${esc(w.a)}" onchange="S.nwin[${i}].a=this.value;save()"><span>–</span><input type="time" value="${esc(w.b)}" onchange="S.nwin[${i}].b=this.value;save()"><button style="flex:none;padding:10px 14px" onclick="S.nwin.splice(${i},1);save();render()">Sil</button></div>`).join('')}
+<div class="row"><button class="moss" onclick="S.nwin=S.nwin||[];S.nwin.push({a:'09:00',b:'21:00'});save();render()">Aralık ekle</button></div>
+<p class="hint">Aralığın dışına düşen bir etkinlik hatırlatması, bir sonraki aralığın başlangıcında gelir. Bitişi başlangıçtan önce yazarsan gece yarısını geçen aralık olur (örneğin 22:00 – 02:00).</p></div>
+<h2>Düzenli hatırlatmalar</h2>${rl.map((r,i)=>`<div class="card"><label>Mesaj</label><input value="${esc(r.text||'')}" onchange="S.rems[${i}].text=this.value;save()">
+<div class="tm" style="margin-top:10px"><input type="time" value="${esc(r.a)}" onchange="S.rems[${i}].a=this.value;save();render()"><span>–</span><input type="time" value="${esc(r.b)}" onchange="S.rems[${i}].b=this.value;save();render()"></div>
+<label>Sıklık</label><select onchange="S.rems[${i}].every=+this.value;save();render()">${[[30,'30 dakikada bir'],[60,'Saatte bir'],[90,'1,5 saatte bir'],[120,'2 saatte bir'],[180,'3 saatte bir'],[240,'4 saatte bir']].map(([v,n])=>`<option value="${v}" ${(+r.every||120)===v?'selected':''}>${n}</option>`).join('')}</select>
+<div class="ocs" style="margin-top:12px">${[1,2,3,4,5,6,0].map(d=>`<span class="oc ${(r.days||[0,1,2,3,4,5,6]).includes(d)?'on':''}" onclick="togRemDay(${i},${d})">${WD[d].slice(0,3)}</span>`).join('')}</div>
+<label class="chk"><input type="checkbox" ${r.on===false?'':'checked'} onchange="S.rems[${i}].on=this.checked;save()"><span>Açık</span></label>
+<p class="hint">Gönderilecek saatler: ${remSlots(r).map(m=>String(Math.floor(m%1440/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')).join(', ')}</p>
+<div class="row"><button onclick="S.rems.splice(${i},1);save();render()">Hatırlatmayı sil</button></div></div>`).join('')}
+<div class="row"><button class="moss" onclick="addRem()">Hatırlatma ekle</button></div>
+<p class="hint" style="margin:6px 4px">Hatırlatmalar uygulama kapalıyken de telefondan gelir. Ayarı değiştirince bildirimler yeniden planlanır.</p>
+<h2>Bildirim sesleri</h2><div class="card">${SK.map(([k,n])=>`<label>${n}</label><div class="row" style="margin-top:4px"><select onchange="S.snd['${k}']=this.value;save();playSnd(this.value)">${Object.entries(SND).map(([id,v])=>`<option value="${id}" ${(S.snd[k]||'classic')===id?'selected':''}>${v.n}</option>`).join('')}</select><button style="flex:none;padding:10px 16px" onclick="playSnd(S.snd['${k}'])">Dinle</button></div>`).join('')}
+<label>Uygulama içi ses seviyesi</label><input type="range" min="0.05" max="1" step="0.05" value="${S.sndVol??.6}" onchange="S.sndVol=+this.value;save();playSnd('classic')">
+<p class="hint">Uygulama açıkken sesler anında değişir. Uygulama kapalıyken gelen telefon bildirimlerinin sesi, APK yeniden derlendikten sonra bu seçime göre çalar.</p></div>`}
 function notif(){S.notifs.forEach(n=>n.read=1);save();return `<section class="hero"><h1>Bildirimler</h1><p class="dim" style="position:relative">Etkinlik ve görev hatırlatmaları burada birikir.</p></section>
-<div class="row"><button class="moss" onclick="askPerm()">Bildirim izni ver</button><button onclick="ping('Test bildirimi','Bildirimler çalışıyor')">Test gönder</button></div>
+<div class="row"><button class="moss" onclick="askPerm()">Bildirim izni ver</button><button onclick="ping('Test bildirimi','Bildirimler çalışıyor')">Test gönder</button></div><div class="row"><button class="pri" onclick="go('nset')">Saatler, hatırlatmalar ve sesler</button></div>
 ${S.notifs.length?S.notifs.map(n=>`<div class="card"><b>${esc(n.title)}</b><p>${esc(n.body)}</p><small class="dim">${new Date(n.at).toLocaleString('tr-TR')}</small></div>`).join(''):'<p class="dim" style="margin:14px 4px">Henüz bildirim yok.</p>'}
 ${S.notifs.length?'<div class="row"><button onclick="S.notifs=[];save();render()">Hepsini temizle</button></div>':''}`}
 
@@ -476,7 +545,7 @@ const THEMES=[['xbox','Xbox Yeşili','#107c10','#9bf00b'],['rdr','Kızıl Batı'
 function setTheme(k){S.theme=k;document.documentElement.dataset.theme=k;save();render()}
 function openM(h){const m=$('#modal');m.innerHTML='<div class="sheet">'+h+'</div>';m.classList.add('on')}
 function closeM(){$('#modal').classList.remove('on')}
-function more(){const T=[['notes','✎','Notlar','Yaz, sesle söyle, dosyadan çek'],['mem','◈','Hafıza','Olaylar, konular, dosyalar'],['ach','★','Başarımlar','Rozetler ve seviye'],['news','▤','Oyun Haberleri','Oyun dünyasından son haberler'],['council','✦','Kurtlar Konseyi','Tüm yapay zekalar aynı anda'],['sum','◔','Dönem özeti','Haftalık ve aylık özet'],['notif','🔔','Bildirimler','Hatırlatma geçmişi'],['set','⚙','Ayarlar','Tema, API, bildirim']];
+function more(){const T=[['notes','✎','Notlar','Yaz, sesle söyle, dosyadan çek'],['mem','◈','Hafıza','Olaylar, konular, dosyalar'],['ach','★','Başarımlar','Rozetler ve seviye'],['news','▤','Oyun Haberleri','Oyun dünyasından son haberler'],['council','✦','Kurtlar Konseyi','Tüm yapay zekalar aynı anda'],['sum','◔','Dönem özeti','Haftalık ve aylık özet'],['plan','🏋','Antrenman programı','Haftalık hareketlerini düzenle'],['nset','🔊','Bildirim ayarları','Saatler, hatırlatmalar, sesler'],['notif','🔔','Bildirimler','Hatırlatma geçmişi'],['set','⚙','Ayarlar','Tema, API, bildirim']];
 return `<section class="hero"><h1>Daha fazla</h1></section><div class="mgrid">${T.map(([k,i,n,d])=>`<button class="mt" onclick="go('${k}')"><span>${i}</span><b>${n}</b><small>${d}</small></button>`).join('')}</div>`}
 
 /* ---------- Hava durumu ---------- */
@@ -556,7 +625,7 @@ async function send(){const i=$('#ci'),t=i.value.trim();if(!t)return;i.value='';
 try{const hist=S.chat.slice(-21,-1).map(m=>(m.r==='u'?'Ben: ':'Sen: ')+m.t).join('\n');
 let out=await ai(CH_SYS(t),(hist?'Önceki konuşma:\n'+hist+'\n\n':'')+'Ben: '+t,chatProv()),mem=[];const k=out.indexOf('###HAFIZA###');
 if(k>=0){try{mem=J(out.slice(k+12))}catch(e){}out=out.slice(0,k)}
-S.chat.push({r:'a',t:out.trim()});
+S.chat.push({r:'a',t:out.trim()});beep('chat');
 mem.forEach(m=>{const o=typeof m==='string'?{c:'konu',t:m}:m;if(o&&typeof o.t==='string'&&o.t.trim()&&!S.memory.some(x=>x.t.toLowerCase()===o.t.trim().toLowerCase()))S.memory.push({id:uid(),t:o.t.trim(),c:o.c==='olay'?'olay':o.c==='zevk'?'zevk':'konu',d:/^\d{4}-\d\d-\d\d$/.test(o.d||'')?o.d:'',date:today()})});S.memory=S.memory.slice(-500);save();if(mem.some(m=>m&&m.c==='zevk')&&hasKey()&&Date.now()-(S.recAt||0)>216e5)getRecs()}
 catch(e){S.chat.push({r:'a',t:'⚠ '+e.message});save()}busy();if(tab==='chat')paintChat()}
 let memTab='all';
@@ -587,7 +656,7 @@ const cnt=k=>S.cnt[k]||0,cset=k=>Object.keys(S.cnt[k]||{}).length;
 const doneKeys=()=>Object.keys(S.done).filter(k=>S.done[k]);
 const cntDone=()=>doneKeys().length;
 const workDays=()=>new Set(doneKeys().map(k=>k.split('|')[0])).size;
-const fullDays=()=>{const by={};doneKeys().forEach(k=>{const d=k.split('|')[0];by[d]=(by[d]||0)+1});return Object.keys(by).filter(d=>by[d]>=PLAN[new Date(d+'T12:00:00').getDay()].length)};
+const fullDays=()=>{const by={};doneKeys().forEach(k=>{const d=k.split('|')[0];by[d]=(by[d]||0)+1});return Object.keys(by).filter(d=>{const n=planOf(new Date(d+'T12:00:00').getDay()).length;return n&&by[d]>=n})};
 const lvNow=()=>Math.floor(G()/150)+1;
 const BADGES=[];
 function tier(key,gl,val,list){list.forEach(([n,name,desc],i)=>{const f=list.length>1?i/(list.length-1):.5,r=f<.34?0:f<.67?1:f<.95?2:3;BADGES.push({id:key+n,n:name,d:desc,i:gl,r,g:RAR[r][1],p:()=>[val(),n],ok:()=>val()>=n})})}
@@ -669,7 +738,7 @@ function checkBadges(){if(!S.profile)return;for(const o in LEGACY){if(LEGACY[o]=
 let n=0,sh=[];BADGES.forEach(b=>{if(!S.badges[b.id]&&b.ok()){S.badges[b.id]=today();n++;if(sh.length<3)sh.push(b)}});
 sh.forEach((b,i)=>setTimeout(()=>achBadge(b),i*4000));if(n>3)setTimeout(()=>ach((n-3)+' başarım daha açıldı'),3*4000);
 if(n){try{localStorage.setItem('kd',JSON.stringify(S))}catch(e){}if(tab==='home'||tab==='ach')render()}}
-function achBadge(b){toast('',`<div class="ach"><div class="aic on r${b.r}" style="width:52px;height:52px;animation:pop .45s cubic-bezier(.2,1.6,.4,1)">${svgI(b.i,28)}</div><div><b>Başarım açıldı</b> · <span style="color:var(--hi)">${b.g}G</span><br><span class="dim">${esc(b.n)}: ${esc(b.d)}</span></div></div>`);navigator.vibrate&&navigator.vibrate([60,40,60]);beep()}
+function achBadge(b){toast('',`<div class="ach"><div class="aic on r${b.r}" style="width:52px;height:52px;animation:pop .45s cubic-bezier(.2,1.6,.4,1)">${svgI(b.i,28)}</div><div><b>Başarım açıldı</b> · <span style="color:var(--hi)">${b.g}G</span><br><span class="dim">${esc(b.n)}: ${esc(b.d)}</span></div></div>`);navigator.vibrate&&navigator.vibrate([60,40,60]);beep('ach')}
 let bf='all',bshow=30;
 function badgesPage(){const gg=badgeG(),tot=BADGES.reduce((a,b)=>a+b.g,0),got=BADGES.filter(b=>S.badges[b.id]).length;
 let list=BADGES.filter(b=>bf==='all'||(bf==='on')===!!S.badges[b.id]).sort((a,b)=>(S.badges[b.id]?0:1)-(S.badges[a.id]?0:1)||b.r-a.r);const total=list.length;list=list.slice(0,bshow);
@@ -770,7 +839,7 @@ function set(){return `<h2>Tema</h2><div class="card"><div class="themes">${THEM
 <h2>Yapay zeka anahtarları</h2><div class="card"><p class="dim">Anahtarlar sadece bu cihazda saklanır. Anahtarını girdiğin her servis Konsey'e otomatik eklenir.</p>${Object.entries(PROV).map(([p,v])=>pv(p,v)).join('')}
 <label>Varsayılan sohbet yapay zekası</label><select onchange="S.provider=this.value;save()">${Object.entries(PROV).map(([p,v])=>`<option value="${p}" ${S.provider===p?'selected':''}>${v.n}</option>`).join('')}</select></div>
 <h2>Bildirimler</h2><div class="card"><label>Etkinlikten kaç dakika önce haber verilsin</label><input type="number" value="${S.remind}" onchange="S.remind=+this.value||15;save()">
-<div class="row"><button class="moss" onclick="askPerm()">Bildirim izni ver</button></div></div>
+<div class="row"><button class="moss" onclick="askPerm()">Bildirim izni ver</button><button onclick="go('nset')">Saatler ve sesler</button></div></div>
 <h2>Oyun haberleri</h2><div class="card"><label>Kaynaklar (her satır: Ad | https adresi)</label><textarea rows="5" onchange="setFeeds(this.value)">${esc(feeds().map(f=>f.join(' | ')).join('\n'))}</textarea><p class="dim" style="font-size:12px">Boş bırakırsan varsayılan kaynaklar kullanılır.</p></div>
 <h2>Desteklenen dosyalar</h2><div class="card"><p class="dim" style="margin:0">Takvim, Notlar, Hafıza ve Paylaş bölümleri şunları okur: PDF, Word (docx), Excel (xlsx), PowerPoint (pptx), ics, txt, md, csv, json, html, xml ve resimler (png, jpg, webp). PDF'ler önce metin olarak okunur, taranmış PDF ve resimler Gemini ya da Claude ile çözülür.</p></div>
 <h2>Telefon özellikleri</h2><div class="card"><p class="dim">Bu bölüm APK sürümünde çalışır.</p>
@@ -842,8 +911,8 @@ setTimeout(()=>{if(S.profile)fetchNews()},2500);
 /* ---------- Başlat ---------- */
 function render(){const a=$('#app');
 if(!S.profile||editing){a.innerHTML=onboard();$('nav').style.display='none';return}
-a.innerHTML={home,cal,tasks,chat,more,notes,council,sum:summary,notif,set,mem:memPage,ach:badgesPage,news:newsPage}[tab]();$('nav').style.display='flex';
-document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===(['notes','council','sum','notif','set','mem','ach','news'].includes(tab)?'more':tab)));if(tab==='chat')setTimeout(()=>scrollTo(0,document.body.scrollHeight),0)}
+a.innerHTML={home,cal,tasks,chat,more,notes,council,sum:summary,notif,set,mem:memPage,ach:badgesPage,news:newsPage,plan:planPage,nset:nsetPage}[tab]();$('nav').style.display='flex';
+document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===(['notes','council','sum','notif','set','mem','ach','news','plan','nset'].includes(tab)?'more':tab)));if(tab==='chat')setTimeout(()=>scrollTo(0,document.body.scrollHeight),0);if(tab==='home')setTimeout(ensureCovers,300)}
 document.documentElement.dataset.theme=S.theme;render();setInterval(tickEv,20000);tickEv();document.addEventListener('visibilitychange',tickEv);getWx();getGameFact();setTimeout(()=>{if(S.updUrl&&Date.now()-(S.updAt||0)>2*36e5){S.updAt=Date.now();checkUpdate()}},3000);
 if(S.profile&&hasKey()&&!(S.recs[today()]&&S.recs[today()].series))getRecs();
 if(S.profile&&hasKey()&&!(S.quote&&S.quote.date===today()))getQuote();
